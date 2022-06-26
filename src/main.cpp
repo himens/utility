@@ -20,20 +20,34 @@ int main(int argc, char **argv)
   timer.set_name("put_data example");
   timer.start();
   {
-    word.put_data<int>(1, 0,  1, reverse);
-    word.put_data<int>(7, 1,  3, reverse);
-    word.put_data<int>(7, 4,  4, reverse);
-    word.put_data<int>(7, 8,  4, reverse);
-    word.put_data<int>(7, 12, 4, reverse);
+    word.put_data<int>(1, 0,  0,  reverse);
+    word.put_data<int>(7, 1,  3,  reverse);
+    word.put_data<int>(7, 4,  7,  reverse);
+    word.put_data<int>(7, 8,  11, reverse);
+    word.put_data<int>(7, 12, 15, reverse);
   }
   timer.stop();
 
   std::cout << timer << "\n"; 
   std::cout << word << "\n \n";
+
+  // profile get_data
+  unsigned long val;
+
+  timer.set_name("get_data");
+  timer.reset();
+  timer.start();
+  {
+    val = word.get_data(4, 7, reverse);
+  }
+  timer.stop();
+
+  std::cout << timer << "\n"; 
+  std::cout << "Extracted value = " << val << "\n\n";
   word.reset();
 
   // profiling swap_bytes
-  word.put_data<int>(5, 0, word.get_size(), reverse);
+  word.put_data<int>(5, 0, word.get_size() - 1, reverse);
   
   timer.set_name("swap_bytes");
   timer.reset();
@@ -48,15 +62,11 @@ int main(int argc, char **argv)
   word.reset();
 
   // profiling put_data
-  int val = 1;
-  size_t lsb = 0;
-  size_t size = word.get_size();
-
   timer.set_name("put_data");
   timer.reset();
   timer.start();
   {
-    word.put_data<int>(val, lsb, size, reverse);
+    word.put_data<int>(1, 0, word.get_size() - 1, reverse);
   }
   timer.stop();
 

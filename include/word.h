@@ -29,7 +29,7 @@ class Word
     // print word
     friend std::ostream& operator<<(std::ostream& os, const Word w) 
     {
-      os << "[Word " << SIZE << "-bit] Data: " << w.get_data();
+      os << "Word data: " << w.get_data();
 
       return os;
     }
@@ -66,31 +66,55 @@ class Word
       }
     }
 
-    // put data to word
-    template <typename T>
-    void put_data(const T &data, const size_t lsb, const size_t size, const bool reverse = false)
+    // get data stored between bits [lsb, msb]
+    unsigned long get_data(const size_t lsb, const size_t msb, const bool reverse = false)
     {
-      if (size < 0 || size > SIZE) throw std::out_of_range("put_data: size out-of-range!");
-      if (lsb < 0 || lsb > (SIZE - 1)) throw std::out_of_range("put_data: lsb out-of-range!");
-      if ((lsb + size) > SIZE) throw std::range_error("put_data: lsb + size greater than word size!");
+      check_bit_range(lsb, msb);
 
-      size_t msb = lsb + size - 1;
+      size_t n_bits = msb - lsb + 1;
+      Bits bits = _word & get_mask(lsb, msb); // extract bits in [lsb, msb]
+      bits >>= lsb; // shift back to bit 0
+      if (reverse) reverse_bits(bits, 0, n_bits - 1);
+
+      return bits.to_ulong();
+    }
+
+    // put data to word between bits [lsb, msb]
+    template <typename T>
+    void put_data(const T &data, const size_t lsb, const size_t msb, const bool reverse = false)
+    {
+      check_bit_range(lsb, msb);
+
       Bits bits(data);
-      Bits mask = ~Bits(0);
-
-      mask = (mask >> (SIZE - 1 - msb)) & (mask << lsb);
-      bits = (bits << lsb) & mask;
+      bits = (bits << lsb) & get_mask(lsb, msb); // shift bits by lsb then mask the rest above msb
       if (reverse) reverse_bits(bits, lsb, msb);
 
       _word |= bits;
     }
 
   private:
-    // reverse bits from lsb to msb
+    // check bit range [lsb, msb]
+    void check_bit_range(const size_t lsb, const size_t msb)
+    {
+      if (lsb > msb) throw std::range_error("Word::check_bit_range: lsb greater than msb!");
+      if (lsb < 0 || msb > (SIZE - 1)) throw std::out_of_range("Word::check_bit_range: lsb or msb out-of-range!");
+    }
+
+    // get mask for bits [lsb, msb]
+    Bits get_mask(const size_t lsb, const size_t msb)
+    {
+      check_bit_range(lsb, msb);
+
+      Bits mask = ~Bits(0); // all bits to 1
+      mask = (mask >> (SIZE - 1 - msb)) & (mask << lsb); // set all bits above msb to 0 and all bits below lsb to 0
+
+      return mask;
+    }
+
+    // reverse bits between bits [lsb, msb]
     void reverse_bits(Bits &bits, const size_t lsb = 0, const size_t msb = SIZE - 1)
     {
-      if (lsb > msb) throw std::range_error("reverse_bits: lsb greater than msb!");
-      if (lsb < 0 || msb > (SIZE - 1)) throw std::out_of_range("reverse_bits: lsb or msb out-of-range!");
+      check_bit_range(lsb, msb);
 
       size_t n_bits = msb - lsb + 1;
 
