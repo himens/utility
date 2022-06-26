@@ -25,7 +25,7 @@ class Timer
 
     friend std::ostream& operator<<(std::ostream& os, const Timer t) 
     {
-      os << "[Timer " + t.get_name() + "]: Elapsed time = " << t.get_elapsed_time_ms() << "ms";
+      os << "[Timer " + t.get_name() + "] Elapsed time = " << t.get_elapsed_time_ms() << "ms";
 
       return os;
     }
@@ -35,6 +35,7 @@ class Timer
     void reset() { _start = _end = {}; }
     void set_name(const std::string name) { _name = name; }
     std::string get_name() const { return _name; }
+    double get_elapsed_time_us() const { return get_elapsed_time_s() * 1e6; }
     double get_elapsed_time_ms() const { return get_elapsed_time_s() * 1e3; }
     double get_elapsed_time_s() const
     { 

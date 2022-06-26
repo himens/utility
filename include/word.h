@@ -29,7 +29,7 @@ class Word
     // print word
     friend std::ostream& operator<<(std::ostream& os, const Word w) 
     {
-      os << w.get_data();
+      os << "[Word " << SIZE << "-bit] Data: " << w.get_data();
 
       return os;
     }
