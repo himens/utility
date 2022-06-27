@@ -23,13 +23,6 @@ class Timer
     Timer(const std::string name) { set_name(name); }
     Timer() {};
 
-    friend std::ostream& operator<<(std::ostream& os, const Timer t) 
-    {
-      os << "[Timer " + t.get_name() + "] Elapsed time = " << t.get_elapsed_time_ms() << "ms";
-
-      return os;
-    }
-
     void start() { _start = std::chrono::system_clock::now(); }
     void stop() { _end = std::chrono::system_clock::now(); }
     void reset() { _start = _end = {}; }

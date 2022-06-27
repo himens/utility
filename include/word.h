@@ -37,21 +37,27 @@ class Word
     // get word size
     size_t get_size() const { return SIZE; }
 
-    // get word data 
+    // get word data (bitset)
     Bits get_data() const { return _word; }
-
-    // convert to unsigned types
-    uint16_t to_uint8()  const { return static_cast<uint8_t>(_word.to_ulong()); }
-    uint16_t to_uint16() const { return static_cast<uint16_t>(_word.to_ulong()); }
-    uint16_t to_uint32() const { return static_cast<uint32_t>(_word.to_ulong()); }
-    uint16_t to_uint64() const { return static_cast<uint64_t>(_word.to_ulong()); }
-    uint16_t to_ulong()  const { return _word.to_ulong(); }
 
     // reset word bits to zero
     void reset() { _word.reset(); }
 
-    // reverse word bits
-    void reverse_bits() { reverse_bits(_word); }
+    // reverse word bits between [lsb, msb]
+    void reverse_bits(const size_t lsb = 0, const size_t msb = SIZE - 1) { reverse_bits(_word, lsb, msb); }
+
+    // convert data between bits [lsb, msb] to unsigned long
+    unsigned long to_ulong(const size_t lsb, const size_t msb, const bool reverse = false) const
+    {
+      check_bit_range(lsb, msb);
+
+      size_t n_bits = msb - lsb + 1;
+      Bits bits = _word & get_mask(lsb, msb); // extract bits in [lsb, msb]
+      bits >>= lsb; // shift back to bit 0
+      if (reverse) reverse_bits(bits, 0, n_bits - 1);
+
+      return bits.to_ulong();
+    }
 
     // swap word bytes
     void swap_bytes() 
@@ -64,19 +70,6 @@ class Word
       {
 	std::cout << "[WARNING] Word::swap_bytes: bytes swap for word size " << SIZE << " not supported! \n";
       }
-    }
-
-    // get data stored between bits [lsb, msb]
-    unsigned long get_data(const size_t lsb, const size_t msb, const bool reverse = false)
-    {
-      check_bit_range(lsb, msb);
-
-      size_t n_bits = msb - lsb + 1;
-      Bits bits = _word & get_mask(lsb, msb); // extract bits in [lsb, msb]
-      bits >>= lsb; // shift back to bit 0
-      if (reverse) reverse_bits(bits, 0, n_bits - 1);
-
-      return bits.to_ulong();
     }
 
     // put data to word between bits [lsb, msb]
@@ -94,25 +87,25 @@ class Word
 
   private:
     // check bit range [lsb, msb]
-    void check_bit_range(const size_t lsb, const size_t msb)
+    void check_bit_range(const size_t lsb, const size_t msb) const
     {
       if (lsb > msb) throw std::range_error("Word::check_bit_range: lsb greater than msb!");
       if (lsb < 0 || msb > (SIZE - 1)) throw std::out_of_range("Word::check_bit_range: lsb or msb out-of-range!");
     }
 
     // get mask for bits [lsb, msb]
-    Bits get_mask(const size_t lsb, const size_t msb)
+    Bits get_mask(const size_t lsb, const size_t msb) const
     {
       check_bit_range(lsb, msb);
 
       Bits mask = ~Bits(0); // all bits to 1
-      mask = (mask >> (SIZE - 1 - msb)) & (mask << lsb); // set all bits above msb to 0 and all bits below lsb to 0
+      mask = (mask >> (SIZE - 1 - msb)) & (mask << lsb); // set bits above msb to 0 and bits below lsb to 0
 
       return mask;
     }
 
-    // reverse bits between bits [lsb, msb]
-    void reverse_bits(Bits &bits, const size_t lsb = 0, const size_t msb = SIZE - 1)
+    // reverse bits between [lsb, msb]
+    void reverse_bits(Bits &bits, const size_t lsb, const size_t msb) const
     {
       check_bit_range(lsb, msb);
 

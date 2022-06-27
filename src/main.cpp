@@ -16,8 +16,7 @@ int main(int argc, char **argv)
   Timer timer;
   bool reverse = true;
 
-  // profile put_data exmaple
-  timer.set_name("put_data example");
+  // profile put_data example
   timer.start();
   {
     word.put_data<int>(1, 0,  0,  reverse);
@@ -27,50 +26,44 @@ int main(int argc, char **argv)
     word.put_data<int>(7, 12, 15, reverse);
   }
   timer.stop();
-
-  std::cout << timer << "\n"; 
+  std::cout << "Elapsed time(put_data example): " <<  timer.get_elapsed_time_us() << "us \n"; 
   std::cout << word << "\n \n";
 
-  // profile get_data
+  // profile to_ulong
   unsigned long val;
 
-  timer.set_name("get_data");
   timer.reset();
   timer.start();
   {
-    val = word.get_data(4, 7, reverse);
+    val = word.to_ulong(4, 7, reverse);
   }
   timer.stop();
-
-  std::cout << timer << "\n"; 
-  std::cout << "Extracted value = " << val << "\n\n";
   word.reset();
+  std::cout << "Elapsed time(to_ulong): " << timer.get_elapsed_time_us() << "us \n"; 
+  std::cout << "Extracted value: " << val << "\n\n";
 
   // profiling swap_bytes
-  word.put_data<int>(5, 0, word.get_size() - 1, reverse);
+  word.reset();
+  word.put_data<int>(5, 0, word.get_size() - 1);
   
-  timer.set_name("swap_bytes");
   timer.reset();
   timer.start();
   {
     word.swap_bytes();
   }
   timer.stop();
-
-  std::cout << timer << "\n";
+  std::cout << "Elapsed time(swap_byte): " <<  timer.get_elapsed_time_us() << "us \n"; 
   std::cout << word << "\n \n";
-  word.reset();
 
   // profiling put_data
-  timer.set_name("put_data");
+  word.reset();
   timer.reset();
   timer.start();
   {
     word.put_data<int>(1, 0, word.get_size() - 1, reverse);
   }
   timer.stop();
-
-  std::cout << timer << "\n";
+  std::cout << "Elapsed time(put_data): " <<  timer.get_elapsed_time_us() << "us \n"; 
   std::cout << word << "\n \n";
   word.reset();
 
