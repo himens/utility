@@ -23,8 +23,11 @@ class Word
     // Bits type definition
     typedef std::bitset<SIZE> Bits;
 
-    // constructor
+    // constructors
     Word() {}
+
+    template <typename T>
+    Word(const T &data) { _word = Bits(data); }  
 
     // print word
     friend std::ostream& operator<<(std::ostream& os, const Word w) 
