@@ -12,60 +12,20 @@
 
 int main(int argc, char **argv)
 {
-  Word<16> word;
-  Timer timer;
-  bool reverse = true;
+  Word word;
+
+  size_t lsb = 0;
+  size_t msb = 15;
+  float msb_value = -180.0;
+  float value = 180.0;
 
   // profile put_data example
-  timer.start();
-  {
-    word.put_data<int>(1, 0,  0,  reverse);
-    word.put_data<int>(7, 1,  3,  reverse);
-    word.put_data<int>(7, 4,  7,  reverse);
-    word.put_data<int>(7, 8,  11, reverse);
-    word.put_data<int>(7, 12, 15, reverse);
-  }
-  timer.stop();
-  std::cout << "Elapsed time(put_data example): " <<  timer.get_elapsed_time_us() << "us \n"; 
-  std::cout << word << "\n \n";
+  word.put_data<float>(value, lsb, msb, msb_value);
 
-  // profile to_ulong
-  unsigned long val;
-
-  timer.reset();
-  timer.start();
-  {
-    val = word.to_ulong(4, 7, reverse);
-  }
-  timer.stop();
-  word.reset();
-  std::cout << "Elapsed time(to_ulong): " << timer.get_elapsed_time_us() << "us \n"; 
-  std::cout << "Extracted value: " << val << "\n\n";
-
-  // profiling swap_bytes
-  word.reset();
-  word.put_data<int>(5, 0, word.get_size() - 1);
-  
-  timer.reset();
-  timer.start();
-  {
-    word.swap_bytes();
-  }
-  timer.stop();
-  std::cout << "Elapsed time(swap_byte): " <<  timer.get_elapsed_time_us() << "us \n"; 
-  std::cout << word << "\n \n";
-
-  // profiling put_data
-  word.reset();
-  timer.reset();
-  timer.start();
-  {
-    word.put_data<int>(1, 0, word.get_size() - 1, reverse);
-  }
-  timer.stop();
-  std::cout << "Elapsed time(put_data): " <<  timer.get_elapsed_time_us() << "us \n"; 
-  std::cout << word << "\n \n";
-  word.reset();
+  std::cout << "in value = " << value << "\n";
+  std::cout << word << "\n";
+  std::cout << word.to_mil() << " " << word.to_umil() << "\n";
+  std::cout << "out value = " << word.get_data<float>(lsb, msb, msb_value) << "\n";
 
   return 0;
 }
