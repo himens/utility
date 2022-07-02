@@ -50,7 +50,7 @@ class Word
     void reverse_bits(const size_t lsb = 0, const size_t size = SIZE) { reverse_bits(_word, lsb, size); }
 
     // swap word bytes
-    void swap_bytes() { _word = bitset_t(__bswap_16(_word.to_ulong())); }
+    void swap_bytes() { _word = {__bswap_16(_word.to_ulong())}; }
 
     // get word to MIL type 
     mil_t to_mil() const { return _word.to_ulong(); }
