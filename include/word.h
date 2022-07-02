@@ -157,10 +157,10 @@ class Word
     {
       if (size == 0) throw std::invalid_argument("Word::to_int: size is zero!");
 
-      const mil_t unsigned_max = pow2(size - 1) - 1;
-      const bool is_negative = is_signed && mil > unsigned_max;
-      const mil_t min = is_signed && is_negative ? unsigned_max + 1 : 0; 
-      const mil_t max = is_signed && !is_negative ? unsigned_max : pow2(size) - 1; 
+      const mil_t negative_min = pow2(size - 1);
+      const bool is_negative = is_signed && mil >= negative_min;
+      const mil_t min = is_negative ? negative_min : 0; 
+      const mil_t max = is_negative || !is_signed ? pow2(size) - 1 : negative_min - 1; 
 
       if (mil > max) mil = max;
       if (mil < min) mil = min;
