@@ -20,17 +20,25 @@ int main(int argc, char **argv)
   //float value = 180.0;
 
   size_t lsb = 2;
-  size_t size = 8;
+  size_t size = 12;
   float msb_value = -10.0;
-  float value = -1.0;
+  float value = -3.1;
 
   // profile put_data example
   word.put_data<float>(value, lsb, size, msb_value);
+  float out_value = word.get_data<float>(lsb, size, msb_value);
 
   std::cout << "in value = " << value << "\n";
   std::cout << word << "\n";
   std::cout << "mil = " << word.to_mil() << "\n";
-  std::cout << "out value = " << word.get_data<float>(lsb, size, msb_value) << "\n";
+  std::cout << "out value = " << out_value << "\n";
+
+  word.reset();
+  word.put_data<char>('d', 0, 8, 0);
+  word.put_data<char>('i', 8, 8, 0);
+  char d = word.get_data<char>(0, 8, 0);
+  char i = word.get_data<char>(8, 8, 0);
+  std::cout << d << " " << i << "\n";
 
   return 0;
 }

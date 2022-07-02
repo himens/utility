@@ -2,9 +2,7 @@
 #include <sstream>
 #include <fstream>
 #include <string>
-#include <map>
 #include <vector>
-#include <memory>
 #include <algorithm>
 #include <math.h>
 #include <byteswap.h>
@@ -23,6 +21,7 @@ class Word
 
     // bitset_t type definition
     typedef std::bitset<SIZE> bitset_t;
+    typedef unsigned int mil_t;
 
     // constructors
     Word() {}
@@ -50,8 +49,11 @@ class Word
     // reverse word bits 
     void reverse_bits(const size_t lsb = 0, const size_t size = SIZE) { reverse_bits(_word, lsb, size); }
 
+    // swap word bytes
+    void swap_bytes() { _word = bitset_t(__bswap_16(_word.to_ulong())); }
+
     // get word to MIL type 
-    int to_mil() const { return _word.to_ulong(); }
+    mil_t to_mil() const { return _word.to_ulong(); }
     
     // get data to type T
     template <typename T>
@@ -62,15 +64,13 @@ class Word
       bitset_t bits = _word & get_mask(lsb, size); // extract bits 
       bits >>= lsb; // shift back to bit 0
 
+      const bool is_signed = msb_value < 0;
       const float lsb_value = get_lsb_value(size, msb_value);
-      int mil = (msb_value < 0 && bits[size - 1]) ? bits.to_ulong() - (1 << size) : bits.to_ulong();
-      T data = static_cast<T>(mil * lsb_value);
+      const mil_t mil = bits.to_ulong();
+      T data = to_int(mil, size, is_signed) * lsb_value;
 
       return data;
     }
-
-    // swap word bytes
-    void swap_bytes() { _word = bitset_t(__bswap_16(_word.to_ulong())); }
 
     // put data to word in MIL format
     template <typename T>
@@ -78,16 +78,13 @@ class Word
     {
       check_bit_range(lsb, size);
 
-      const int min_mil = 0; 
-      const int max_mil = (1 << size) - 1;  
+      const bool is_signed = msb_value < 0;
       const float lsb_value = get_lsb_value(size, msb_value);
-      int mil = (data < 0) ? (data / lsb_value) + (1 << size) : (data / lsb_value);
+      const int scaled_data = data / lsb_value;
+      mil_t mil = to_mil(scaled_data, size, is_signed);
 
-      if (mil > max_mil) mil = max_mil;
-      if (mil < min_mil) mil = min_mil;
- 
       bitset_t bits(mil);
-      bits = (bits << lsb) & get_mask(lsb, size); // shift bits by lsb and mask the rest above msb
+      bits = (bits << lsb) & get_mask(lsb, size); // shift bits by lsb and mask the rest
       if (reverse) reverse_bits(bits, lsb, size);
 
       _word |= bits;
@@ -117,9 +114,11 @@ class Word
     // get lsb value
     float get_lsb_value(const size_t size, const float msb_value) const
     {
-      if (size == 0) throw std::range_error("Word::get_lsb_value: size is zero!!");
+      if (size == 0) throw std::invalid_argument("Word::get_lsb_value: size is zero!");
 
-      return ((msb_value != 0) ? std::abs(msb_value) / (1 << (size - 1)) : 1);
+      float lsb_value = msb_value != 0 ? std::abs(msb_value) / pow2(size - 1) : 1;
+
+      return lsb_value;
     }
 
     // reverse bits 
@@ -136,6 +135,43 @@ class Word
         bits[msb - i] = bit;
       }
     }
+
+    // convert data from int to mil_t 
+    mil_t to_mil(int value, const size_t size, const bool is_signed) const
+    {
+      if (size == 0) throw std::invalid_argument("Word::to_mil: size is zero!");
+
+      const int min = is_signed ? -pow2(size - 1) : 0; 
+      const int max = is_signed ? pow2(size - 1) - 1 : pow2(size) - 1; 
+
+      if (value < min) value = min;
+      if (value > max) value = max;
+
+      mil_t mil = value < 0 ? value + pow2(size) : value;
+
+      return mil;
+    }
+
+    // convert data from mil_t to int 
+    int to_int(mil_t mil, const size_t size, const bool is_signed) const
+    {
+      if (size == 0) throw std::invalid_argument("Word::to_int: size is zero!");
+
+      const mil_t unsigned_max = pow2(size - 1) - 1;
+      const bool is_negative = is_signed && mil > unsigned_max;
+      const mil_t min = is_signed && is_negative ? unsigned_max + 1 : 0; 
+      const mil_t max = is_signed && !is_negative ? unsigned_max : pow2(size) - 1; 
+
+      if (mil > max) mil = max;
+      if (mil < min) mil = min;
+
+      int value = is_negative ? mil - pow2(size) : mil;
+
+      return value;
+    }
+
+    // fast power of 2 
+    unsigned int pow2(const size_t size) const { return (1 << size); }
 
     // data members
     bitset_t _word;  
