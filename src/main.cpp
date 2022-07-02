@@ -12,6 +12,7 @@
 
 int main(int argc, char **argv)
 {
+  Timer timer;
   Word word;
 
   //size_t lsb = 0;
@@ -19,19 +20,27 @@ int main(int argc, char **argv)
   //float msb_value = -180.0;
   //float value = 180.0;
 
+  // profile example
   size_t lsb = 2;
   size_t size = 12;
-  float msb_value = -10.0;
-  float value = -3.1;
+  float msb_value = 10.0;
+  float value = 0;
+  float out_value = 0;
 
-  // profile put_data example
-  word.put_data<float>(value, lsb, size, msb_value);
-  float out_value = word.get_data<float>(lsb, size, msb_value);
+  timer.set_name("example");
+  timer.start();
+  {
+    word.put_data<float>(value, lsb, size, msb_value);
+    out_value = word.get_data<float>(lsb, size, msb_value);
+  }
+  timer.stop();
 
+  std::cout << "msb_value = " << msb_value << "\n";
   std::cout << "in value = " << value << "\n";
   std::cout << word << "\n";
   std::cout << "mil = " << word.to_mil() << "\n";
   std::cout << "out value = " << out_value << "\n";
+  std::cout << timer << "\n";
 
   word.reset();
   word.put_data<char>('d', 0, 8, 0);

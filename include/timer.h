@@ -6,13 +6,11 @@
 #include <vector>
 #include <memory>
 #include <algorithm>
+#include <thread>    
 #include <chrono>
 
 #ifndef TIMER_H
 #define TIMER_H
-
-#define sleep_ms(x) ( std::this_thread::sleep_for(std::chrono::milliseconds(x)) )
-#define sleep_s(x) ( std::this_thread::sleep_for(std::chrono::seconds(x)) )
 
 /////////////////
 // Timer class //
@@ -22,6 +20,9 @@ class Timer
   public:
     Timer(const std::string name) { set_name(name); }
     Timer() {};
+
+    static void sleep_ms(const unsigned int ms) { std::this_thread::sleep_for(std::chrono::milliseconds(ms)); }
+    static void sleep_s(const unsigned int s) { std::this_thread::sleep_for(std::chrono::seconds(s)); }
 
     friend std::ostream& operator<<(std::ostream& os, const Timer t) 
     {
