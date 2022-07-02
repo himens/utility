@@ -23,7 +23,6 @@ class Word
 
     // bitset_t type definition
     typedef std::bitset<SIZE> bitset_t;
-    typedef uint16_t mil_t;
 
     // constructors
     Word() {}
@@ -51,32 +50,20 @@ class Word
     // reverse word bits 
     void reverse_bits(const size_t lsb = 0, const size_t size = SIZE) { reverse_bits(_word, lsb, size); }
 
-    // get word to MIL type (signed/unsigned)
-    mil_t to_mil() const { return static_cast<mil_t>(_word.to_ulong()); }
+    // get word to MIL type 
+    int to_mil() const { return _word.to_ulong(); }
     
-    // get data to MIL type
-    mil_t to_mil(const size_t lsb, const size_t size, const float msb_value) const
-    {
-      check_bit_range(lsb, size);
-
-      bitset_t bits = _word & get_mask(lsb, size); // extract bits 
-      bits >>= lsb; // shift back to bit 0
-      mil_t mil = static_cast<mil_t>(bits.to_ulong());
-
-      return mil;
-    }
-
     // get data to type T
     template <typename T>
     T get_data(const size_t lsb, const size_t size, const float msb_value) const 
     {
       check_bit_range(lsb, size);
 
+      bitset_t bits = _word & get_mask(lsb, size); // extract bits 
+      bits >>= lsb; // shift back to bit 0
+
       const float lsb_value = get_lsb_value(size, msb_value);
-      int mil = to_mil(lsb, size, msb_value);
-
-      if (msb_value < 0) mil -= (1 << size); // it's a negative number
-
+      int mil = (msb_value < 0 && bits[size - 1]) ? bits.to_ulong() - (1 << size) : bits.to_ulong();
       T data = static_cast<T>(mil * lsb_value);
 
       return data;
@@ -91,11 +78,16 @@ class Word
     {
       check_bit_range(lsb, size);
 
+      const int min_mil = 0; 
+      const int max_mil = (1 << size) - 1;  
       const float lsb_value = get_lsb_value(size, msb_value);
-      int mil = static_cast<int>(data / lsb_value) + (1 << size);
+      int mil = (data < 0) ? (data / lsb_value) + (1 << size) : (data / lsb_value);
+
+      if (mil > max_mil) mil = max_mil;
+      if (mil < min_mil) mil = min_mil;
+ 
       bitset_t bits(mil);
       bits = (bits << lsb) & get_mask(lsb, size); // shift bits by lsb and mask the rest above msb
-
       if (reverse) reverse_bits(bits, lsb, size);
 
       _word |= bits;
@@ -106,11 +98,12 @@ class Word
     void check_bit_range(const size_t lsb, const size_t size) const
     {
       size_t msb = lsb + size - 1;
+
       if (lsb > msb) throw std::range_error("Word::check_bit_range: lsb greater than msb!");
       if (lsb < 0 || msb > (SIZE - 1)) throw std::out_of_range("Word::check_bit_range: lsb or msb out-of-range!");
     }
 
-    // get mask for bit interval
+    // get mask 
     bitset_t get_mask(const size_t lsb, const size_t size) const
     {
       check_bit_range(lsb, size);
@@ -124,20 +117,20 @@ class Word
     // get lsb value
     float get_lsb_value(const size_t size, const float msb_value) const
     {
-      float lsb_value = msb_value != 0.0 ? std::abs(msb_value) / (1 << (size - 1)) : 1.0;
+      if (size == 0) throw std::range_error("Word::get_lsb_value: size is zero!!");
 
-      return lsb_value;
+      return ((msb_value != 0) ? std::abs(msb_value) / (1 << (size - 1)) : 1);
     }
 
-    // reverse bits in a bit interval
+    // reverse bits 
     void reverse_bits(bitset_t &bits, const size_t lsb, const size_t size) const
     {
       check_bit_range(lsb, size);
 
       for (size_t i = 0; i < (size / 2); i++)
       {
-	size_t msb = lsb + size - 1;
-        bool bit = bits[lsb + i];
+	const size_t msb = lsb + size - 1;
+        const bool bit = bits[lsb + i];
 
         bits[lsb + i] = bits[msb - i];
         bits[msb - i] = bit;
