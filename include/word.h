@@ -106,7 +106,7 @@ class Word
       check_bit_range(lsb, size);
 
       bitset_t mask = ~bitset_t(0); // all bits to 1
-      mask = (mask >> (SIZE - lsb - size)) & (mask << lsb); // set bits above msb to 0 and bits below lsb to 0
+      mask = (mask >> (SIZE - lsb - size)) & (mask << lsb); // set bits above msb and below lsb to 0
 
       return mask;
     }
