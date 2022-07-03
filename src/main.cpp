@@ -21,12 +21,12 @@ int main(int argc, char **argv)
   //float value = 180.0;
 
   // profile example
-  size_t lsb = 2;
-  size_t size = 12;
-  float msb_value = 10.0;
-  float value = 0;
-  float out_value = 0;
+  size_t lsb = 0;
+  size_t size = 16;
+  float msb_value = -10.0;
+  float value = 1.3;
 
+  float out_value = 0;
   timer.set_name("example");
   timer.start();
   {
