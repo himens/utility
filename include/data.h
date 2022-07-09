@@ -30,7 +30,7 @@ class Data
     template <class T>
       Data(const T &data) 
       {
-        static_assert(std::is_pod<T>::value, "Cannot create Data with this data type!");
+        static_assert(std::is_arithmetic<T>::value, "Cannot create Data with this data type!");
 
         _data = data; 
       }  
@@ -38,7 +38,7 @@ class Data
     template <class T>
       Data(const T *data, const size_t lsb, const size_t size) 
       {
-        static_assert(std::is_pod<T>::value, "Cannot create Data with this data type!");
+        static_assert(std::is_arithmetic<T>::value, "Cannot create Data with this data type!");
 	check_bit_range(lsb, size);
 
         const size_t size_of_T = 8 * sizeof(T);
@@ -101,7 +101,7 @@ class Data
     template <class T>
       T get(const size_t lsb, const size_t size, const float msb_value) const 
       {
-        static_assert(std::is_pod<T>::value, "Cannot get this data type!");
+        static_assert(std::is_arithmetic<T>::value, "Cannot get this data type!");
 	check_bit_range(lsb, size);
 
 	bitset_t bits = _data & get_mask(lsb, size); // extract bits 
@@ -119,7 +119,7 @@ class Data
     template <class T>
       void put(const T &data, const size_t lsb, const size_t size, const float msb_value)
       {
-        static_assert(std::is_pod<T>::value, "Cannot put this data type!");
+        static_assert(std::is_arithmetic<T>::value, "Cannot put this data type!");
 	check_bit_range(lsb, size);
 
 	const bool is_signed = msb_value < 0;
