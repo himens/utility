@@ -8,7 +8,6 @@
 #include <cstring>
 #include <byteswap.h>
 #include <bitset>
-#include <typeinfo>
 
 #ifndef _DATA_H_
 #define _DATA_H_
@@ -47,11 +46,10 @@ class Data
 
         for (size_t i = 0; i < number_of_elements; i++)
         {
-          const bitset_t bits = data[i];
-          _data |= (bits << i * size_of_T);
+          _data |= (data[i] << i * size_of_T);
         }
 
-        data &= get_mask(lsb, size);
+        _data &= get_mask(lsb, size);
       }
 
     // print data
