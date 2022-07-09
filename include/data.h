@@ -46,7 +46,8 @@ class Data
 
         for (size_t i = 0; i < number_of_elements; i++)
         {
-          _data |= (data[i] << i * size_of_T);
+	  bitset_t bits = data[i]; 	
+          _data |= (bits << i * size_of_T);
         }
 
         _data &= get_mask(lsb, size);
