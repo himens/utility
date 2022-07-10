@@ -32,6 +32,7 @@ class Data
       Data(const T &data) 
       {
         check_data_type<T>();
+
         _data = data; 
       }  
      
