@@ -12,7 +12,8 @@
 #ifndef _DATA_H_
 #define _DATA_H_
 
-typedef uint32_t mil_t;
+// MIL type definition
+typedef uint64_t mil_t;
 
 ////////////////
 // Data class //
@@ -56,7 +57,7 @@ class Data
     // print data
     friend std::ostream& operator<<(std::ostream& os, const Data &data) 
     {
-      os << "Data bits: " << data.get_data();
+      os << "Data: " << data.get_data();
 
       return os;
     }
