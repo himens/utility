@@ -70,9 +70,9 @@ class Data
     // swap data bytes
     void swap_bytes() 
     { 
-      if      (SIZE == 16) _data = __bswap_16(_data.to_ulong()); 
-      else if (SIZE == 32) _data = __bswap_32(_data.to_ulong()); 
-      else if (SIZE == 64) _data = __bswap_64(_data.to_ulong()); 
+      if      (SIZE == 16) _data = __bswap_16(to_mil()); 
+      else if (SIZE == 32) _data = __bswap_32(to_mil()); 
+      else if (SIZE == 64) _data = __bswap_64(to_mil()); 
       else 
       {
         std::cout << "[WARNING] Byte swap not supported for SIZE = " << SIZE << "! \n"; 

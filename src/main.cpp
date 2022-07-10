@@ -49,7 +49,7 @@ int main(int argc, char **argv)
   size_t lsb = 0;
   size_t size = 19;
   float msb_value = 32.0;
-  float value = 72.1271;
+  float value = 31.4578;
 
   float out_value = 0;
   timer.set_name("example");
@@ -70,6 +70,11 @@ int main(int argc, char **argv)
   std::cout << "mil = " << data.to_mil() << "\n";
   std::cout << "dest = " << dest[0] << " " << dest[1] << "\n";
   std::cout << timer << "\n";
+
+  data.reset();
+  data = {dest, lsb, size};
+  out_value = data.get<float>(lsb, size, msb_value);
+  std::cout << "out value = " << out_value << "\n";
 
   data.reset();
   data.put<char>('d', 0, 8, 0);
