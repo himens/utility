@@ -31,15 +31,14 @@ class Data
     template <class T>
       Data(const T &data) 
       {
-        static_assert(std::is_arithmetic<T>::value, "Cannot create Data with this data type!");
-
+        check_data_type<T>();
         _data = data; 
       }  
      
     template <class T>
       Data(const T *data, const size_t lsb, const size_t size) 
       {
-        static_assert(std::is_arithmetic<T>::value, "Cannot create Data with this data type!");
+        check_data_type<T>();
 	check_bit_range(lsb, size);
 
         const size_t size_of_T = 8 * sizeof(T);
@@ -62,7 +61,7 @@ class Data
       return os;
     }
 
-    // get data bits
+    // get data 
     bitset_t get_data() const { return _data; }
 
     // reset data bits to zero
@@ -102,7 +101,7 @@ class Data
     template <class T>
       T get(const size_t lsb, const size_t size, const float msb_value) const 
       {
-        static_assert(std::is_arithmetic<T>::value, "Cannot get this data type!");
+        check_data_type<T>(); 
 	check_bit_range(lsb, size);
 
 	bitset_t bits = _data & get_mask(lsb, size); // extract bits 
@@ -120,7 +119,7 @@ class Data
     template <class T>
       void put(const T &data, const size_t lsb, const size_t size, const float msb_value)
       {
-        static_assert(std::is_arithmetic<T>::value, "Cannot put this data type!");
+        check_data_type<T>();
 	check_bit_range(lsb, size);
 
 	const bool is_signed = msb_value < 0;
@@ -135,6 +134,14 @@ class Data
       }
 
   protected:
+    // check data type 
+    template <class T>
+      void check_data_type() const 
+      {
+        static_assert(std::is_arithmetic<T>::value, "Input data type not arithmetic!");
+        static_assert(sizeof(T) <= sizeof(mil_t), "Size of input data greater than mil_t!");
+      }
+
     // check bit range 
     void check_bit_range(const size_t lsb, const size_t size) const
     {
