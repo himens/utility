@@ -6,13 +6,11 @@
 #include <vector>
 #include <memory>
 #include <algorithm>
+#include <thread>    
 #include <chrono>
 
 #ifndef TIMER_H
 #define TIMER_H
-
-#define sleep_ms(x) ( std::this_thread::sleep_for(std::chrono::milliseconds(x)) )
-#define sleep_s(x) ( std::this_thread::sleep_for(std::chrono::seconds(x)) )
 
 /////////////////
 // Timer class //
@@ -23,6 +21,21 @@ class Timer
     Timer(const std::string name) { set_name(name); }
     Timer() {};
 
+    static void sleep_ms(const unsigned int ms) { std::this_thread::sleep_for(std::chrono::milliseconds(ms)); }
+    static void sleep_s(const unsigned int s) { std::this_thread::sleep_for(std::chrono::seconds(s)); }
+
+    friend std::ostream& operator<<(std::ostream& os, const Timer t) 
+    {
+      auto elapsed_time_us = t.get_elapsed_time_us();
+
+      os << "[Timer " + t.get_name() + "] Elapsed time = ";
+      if (elapsed_time_us < 1e3) os << elapsed_time_us << "us";
+      else if (elapsed_time_us >= 1e3 && elapsed_time_us < 1e6) os << elapsed_time_us * 1e-3 << "ms";
+      else os << elapsed_time_us * 1e-6 << "s";
+
+      return os;
+    }
+    
     void start() { _start = std::chrono::system_clock::now(); }
     void stop() { _end = std::chrono::system_clock::now(); }
     void reset() { _start = _end = {}; }
