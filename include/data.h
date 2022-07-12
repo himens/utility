@@ -19,23 +19,26 @@
 class Data 
 {
   public:
-    // constants
-    static const size_t WORD_SIZE = 16;
-
     // typedefs
     typedef uint16_t data_t;
     typedef uint64_t mil_t;
 
+    // constants
+    static const size_t WORD_SIZE = 16;
+    static const size_t MIL_SIZE = 8 * sizeof(mil_t);
+
     // constructors
     Data() {}
 
-    Data(data_t *data) { _data = data; }
+    Data(data_t *data) 
+    {
+      if (data == nullptr) throw std::invalid_argument("Data::Data: data is nullptr!");
+
+      _data = data; 
+    }
 
     // get data 
     data_t* get_data() const { return _data; }
-
-    // get data word
-    data_t get_word(const size_t i) const { return _data[i]; }
 
     // swap data bytes
     void swap_bytes(const size_t i) { __bswap_16(_data[i]); } 
@@ -43,36 +46,41 @@ class Data
     // reverse bits 
     void reverse_bits(const size_t lsb, const size_t size) 
     {
-      check_bit_range(lsb, size);
+      check_range(lsb, size);
 
-      //for (size_t i = 0; i < (size / 2); i++)
-      //{
-      //  const size_t msb = lsb + size - 1;
-      //  const bool bit = _data[lsb + i];
+      auto mil = get<mil_t>(lsb, size);
+      size_t nb_of_bits = size; 
+      mil_t mask = ~0; 
 
-      //  _data[lsb + i] = _data[msb - i];
-      //  _data[msb - i] = bit;
-      //}
+      while (nb_of_bits >>= 1) 
+      {
+        mask ^= mask << nb_of_bits; 
+        mil = (mil & ~mask) >> nb_of_bits | (mil & mask) << nb_of_bits; 
+      }
+      
+      put<mil_t>(mil, lsb, size);
     }
 
     // get data to type T
     template <class T>
-      T get(const size_t lsb, const size_t size, const float msb_value) const 
+      T get(const size_t lsb, const size_t size, const double msb_value = 0) const 
       {
-	check_bit_range(lsb, size);
+	check_range(lsb, size);
 
+        const size_t nb_of_words = std::ceil(static_cast<float>(lsb + size) / WORD_SIZE);
 	const bool is_signed = msb_value < 0;
-	const float lsb_value = get_lsb_value(size, msb_value);
+	const auto lsb_value = get_lsb_value(size, msb_value);
 
         mil_t mil = 0;
+        auto mask = get_mask(lsb, size);
 
-        const size_t nb_of_words = 2;
         for (size_t i = 0; i < nb_of_words; i++)
         {
-          mil |= static_cast<mil_t>(_data[i]) << (WORD_SIZE * i);
+          mil |= (static_cast<mil_t>(_data[i]) << WORD_SIZE * i);
         }
-        mil >>= lsb;
-       
+
+        mil = (mil & mask) >> lsb; // mask and remove offset
+
 	T data = to_int(mil, size, is_signed) * lsb_value;
 
 	return data;
@@ -80,57 +88,62 @@ class Data
 
     // put data to word in MIL format
     template <class T>
-      void put(const T &data, const size_t lsb, const size_t size, const float msb_value)
+      void put(const T &data, const size_t lsb, const size_t size, const double msb_value = 0)
       {
-	check_bit_range(lsb, size);
+	check_range(lsb, size);
 
+        const size_t nb_of_words = std::ceil(static_cast<float>(lsb + size) / WORD_SIZE);
 	const bool is_signed = msb_value < 0;
-	const float lsb_value = get_lsb_value(size, msb_value);
+	const auto lsb_value = get_lsb_value(size, msb_value);
 	const int scaled_data = data / lsb_value;
-	const mil_t mil = to_mil(scaled_data, size, is_signed);
 
-        const size_t nb_of_words = 2;
+	auto mil = to_mil(scaled_data, size, is_signed);
+        auto mask = get_mask(lsb, size);
+
+        mil = (mil << lsb) & mask; // add offset
+
         for (size_t i = 0; i < nb_of_words; i++)
         {
-          _data[i] |= (mil << lsb) >> (WORD_SIZE * i);
+          _data[i] &= ~(mask >> WORD_SIZE * i); // delete old data in range, keep the rest
+          _data[i] |= mil >> WORD_SIZE * i;
         }
       }
 
   protected:
     // check bit range 
-    void check_bit_range(const size_t lsb, const size_t size) const
+    void check_range(const size_t lsb, const size_t size) const
     {
-      if (size == 0) throw std::invalid_argument("Data::check_bit_range: size is zero!");
-      else if (lsb < 0 || lsb > (WORD_SIZE - 1)) throw std::out_of_range("Data::check_bit_range: lsb out-of_range!");
+      const size_t msb = lsb + size - 1;
+
+      if (size == 0) throw std::invalid_argument("Data::check_range: size is zero!");
+      else if (lsb < 0 || lsb > WORD_SIZE - 1) throw std::out_of_range("Data::check_range: lsb out-of_range!");
+      else if (msb > MIL_SIZE - 1) throw std::out_of_range("Data::check_range: msb out-of_range!");
     }
 
     // get lsb value
-    float get_lsb_value(const size_t size, const float msb_value) const
+    double get_lsb_value(const size_t size, const double msb_value) const
     {
       if (size == 0) throw std::invalid_argument("Data::get_lsb_value: size is zero!");
 
-      float lsb_value = msb_value != 0 ? std::abs(msb_value) / pow2(size - 1) : 1;
+      double lsb_value = msb_value != 0 ? std::abs(msb_value) / pow2(size - 1) : 1;
 
       return lsb_value;
     }
 
-    // get mask 
-    data_t get_mask(const size_t lsb, const size_t size) const
+    // get mask in range
+    mil_t get_mask(const size_t lsb, const size_t size) const
     {
-      check_bit_range(lsb, size);
+	check_range(lsb, size);
+        
+        mil_t mask = ~0; 
+        mask = (mask >> (MIL_SIZE - lsb - size)) & (mask << lsb); 
 
-      data_t mask = ~0; // all bits to 1
-      if (lsb + size > WORD_SIZE) mask &= (mask << lsb);
-      else mask = (mask >> (WORD_SIZE - lsb - size)) & (mask << lsb); // set bits above msb to 0 and bits below lsb to 0
-
-      return mask;
+        return mask;
     }
 
     // convert data from int to mil_t 
     mil_t to_mil(int value, const size_t size, const bool is_signed) const
     {
-      if (size == 0) throw std::invalid_argument("Data::to_mil: size is zero!");
-
       const int min = is_signed ? -pow2(size - 1) : 0; 
       const int max = is_signed ? pow2(size - 1) - 1 : pow2(size) - 1; 
 
@@ -145,8 +158,6 @@ class Data
     // convert data from mil_t to int 
     int to_int(mil_t mil, const size_t size, const bool is_signed) const
     {
-      if (size == 0) throw std::invalid_argument("Data::to_int: size is zero!");
-
       const mil_t positive_int_max = pow2(size - 1) - 1;
       const bool is_negative = is_signed && mil > positive_int_max;
       const mil_t min = is_negative ? positive_int_max + 1 : 0; 

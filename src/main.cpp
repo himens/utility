@@ -20,10 +20,10 @@ int main(int argc, char **argv)
   // put float example
   std::cout << "put float: \n";
 
-  size_t lsb = 0;
+  size_t lsb = 8;
   size_t size = 19;
   float msb_value = 32;
-  float value = 31.1233;
+  float value = 31.4578;
   float out_value = 0;
 
   // profile put_data example
@@ -41,6 +41,9 @@ int main(int argc, char **argv)
   std::cout << "dest = " << dest[0] << " " << dest[1] << "\n";
   std::cout << timer << "\n \n";
 
+  data.put<char>('b', 0, 8);
+  std::cout << data.get<char>(0, 8) << "\n";
+
   // put char example
   std::cout << "put char: \n";
 
@@ -49,7 +52,7 @@ int main(int argc, char **argv)
 
   for (size_t i = 0; i < str.size(); i++)
   {
-    data = {dest + 2 + i};
+    data = {dest + 5 + i};
     data.put<char>(str[i], 0, 8, 0);
     out_str += data.get<char>(0, 8, 0);
   }
