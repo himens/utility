@@ -66,19 +66,13 @@ class Data
 
         mil_t mil = 0;
 
-        for (size_t i = 0; i < size; i++) 
+        const size_t nb_of_words = 2;
+        for (size_t i = 0; i < nb_of_words; i++)
         {
-          const size_t i_word = (lsb + i) / WORD_SIZE;
-          const size_t offset = (lsb + i) < WORD_SIZE ? lsb : 0;
-          const size_t i_bit_in_word = (lsb + i) % WORD_SIZE;
-
-          auto bit = _data[i_word] & (1 << i_bit_in_word); 
-          bit >>= offset; 
-          bit <<= WORD_SIZE * i_word;
-
-          mil |= bit;
+          mil |= static_cast<mil_t>(_data[i]) << (WORD_SIZE * i);
         }
-
+        mil >>= lsb;
+       
 	T data = to_int(mil, size, is_signed) * lsb_value;
 
 	return data;
@@ -95,16 +89,10 @@ class Data
 	const int scaled_data = data / lsb_value;
 	const mil_t mil = to_mil(scaled_data, size, is_signed);
 
-        for (size_t i = 0; i < size; i++)
+        const size_t nb_of_words = 2;
+        for (size_t i = 0; i < nb_of_words; i++)
         {
-          const size_t i_word = (lsb + i) / WORD_SIZE;
-          const size_t offset = (lsb + i) < WORD_SIZE ? lsb : 0;
-
-          auto bit = mil & (1 << i); 
-          bit <<= offset; 
-          bit >>= WORD_SIZE * i_word;
-
-          _data[i_word] |= bit;
+          _data[i] |= (mil << lsb) >> (WORD_SIZE * i);
         }
       }
 
@@ -124,6 +112,18 @@ class Data
       float lsb_value = msb_value != 0 ? std::abs(msb_value) / pow2(size - 1) : 1;
 
       return lsb_value;
+    }
+
+    // get mask 
+    data_t get_mask(const size_t lsb, const size_t size) const
+    {
+      check_bit_range(lsb, size);
+
+      data_t mask = ~0; // all bits to 1
+      if (lsb + size > WORD_SIZE) mask &= (mask << lsb);
+      else mask = (mask >> (WORD_SIZE - lsb - size)) & (mask << lsb); // set bits above msb to 0 and bits below lsb to 0
+
+      return mask;
     }
 
     // convert data from int to mil_t 
