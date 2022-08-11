@@ -1,0 +1,54 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_EXCMD	mixed	/number, pattern, mixed, or combineV2/
+!_TAG_OUTPUT_FILESEP	slash	/slash or backslash/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PATTERN_LENGTH_LIMIT	96	/0 for no limit/
+!_TAG_PROC_CWD	/home/stefano/utility/ada/	//
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	5.9.0	/227c65e7/
+Arr	my_main.adb	/^    Arr : Storage_Array (1 .. 2);$/;"	v	subprogram:Show	file:
+BYTE_SIZE	data.h	/^    static const size_t BYTE_SIZE = 8;$/;"	m	class:Data	typeref:typename:const size_t
+Block1	my_data.ads	/^  type Block1 is record $/;"	t	packspec:My_Data
+Data	data.h	/^    Data() {}$/;"	f	class:Data
+Data	data.h	/^    Data(word_t *data) { set_data(data); }$/;"	f	class:Data
+Data	data.h	/^class Data $/;"	c
+Get_Mil	my_main.adb	/^  procedure Get_Mil(point : System.Address);$/;"	R	subprogram:My_Main	file:
+MD_ID	my_data.ads	/^    MD_ID     : RNG7_TYPE := 0;$/;"	c	type:Block1	file:
+MESS_TYPE	my_data.ads	/^    MESS_TYPE : RNG9_TYPE := 0;$/;"	c	type:Block1	file:
+MIL_SIZE	data.h	/^    static const size_t MIL_SIZE = sizeof(mil_t) * BYTE_SIZE;$/;"	m	class:Data	typeref:typename:const size_t
+My_Data	my_data.ads	/^package My_Data is$/;"	P
+My_Main	my_main.adb	/^procedure My_Main is$/;"	r
+RNG16_TYPE	my_data.ads	/^  subtype RNG16_TYPE is Natural range 0 .. 2**16 - 1;$/;"	u	packspec:My_Data
+RNG7_TYPE	my_data.ads	/^  subtype RNG7_TYPE is Natural range 0 .. 2**7 - 1;$/;"	u	packspec:My_Data
+RNG8_TYPE	my_data.ads	/^  subtype RNG8_TYPE is Natural range 0 .. 2**8 - 1;$/;"	u	packspec:My_Data
+RNG9_TYPE	my_data.ads	/^  subtype RNG9_TYPE is Natural range 0 .. 2**9 - 1;$/;"	u	packspec:My_Data
+Show	my_main.adb	/^  procedure Show (A : System.Address) is$/;"	r	subprogram:My_Main	file:
+WORD_SIZE	data.h	/^    static const size_t WORD_SIZE = sizeof(word_t) * BYTE_SIZE;$/;"	m	class:Data	typeref:typename:const size_t
+_DATA_H_	data.h	/^#define _DATA_H_$/;"	d
+_data	data.h	/^    word_t *_data = nullptr;  $/;"	m	class:Data	typeref:typename:word_t *
+all	Makefile	/^all:$/;"	t
+check_range	data.h	/^    void check_range(const size_t msb, const size_t size) const$/;"	f	class:Data	typeref:typename:void
+check_type	data.h	/^      void check_type() const$/;"	f	class:Data	typeref:typename:void
+clean	Makefile	/^clean:$/;"	t
+data	my_main.adb	/^  data : Block1;$/;"	v	subprogram:My_Main	file:
+data_t	test.cpp	/^struct data_t {$/;"	s	file:
+get	data.h	/^      T get(const size_t word, const size_t msb, const size_t size, const double msb_value = 0) $/;"	f	class:Data	typeref:typename:T
+get_data	data.h	/^    word_t* get_data() const { return _data; }$/;"	f	class:Data	typeref:typename:word_t *
+get_lsb_value	data.h	/^    double get_lsb_value(const size_t size, const double msb_value) const$/;"	f	class:Data	typeref:typename:double
+get_mask	data.h	/^    mil_t get_mask(const size_t msb, const size_t size) const$/;"	f	class:Data	typeref:typename:mil_t
+get_mil	test.cpp	/^void get_mil(Data::word_t *point)$/;"	f	typeref:typename:void
+get_number_of_words	data.h	/^    size_t get_number_of_words(const size_t msb, const size_t size) const $/;"	f	class:Data	typeref:typename:size_t
+get_shift	data.h	/^    size_t get_shift(const size_t msb, const size_t size) const$/;"	f	class:Data	typeref:typename:size_t
+md_id	test.cpp	/^    uint16_t md_id;$/;"	m	struct:data_t	typeref:typename:uint16_t	file:
+mil_t	data.h	/^    typedef uint64_t mil_t;$/;"	t	class:Data	typeref:typename:uint64_t
+msg_type	test.cpp	/^    uint16_t msg_type;$/;"	m	struct:data_t	typeref:typename:uint16_t	file:
+pow2	data.h	/^    unsigned long pow2(const size_t size) const { return (1UL << size); }$/;"	f	class:Data	typeref:typename:unsigned long
+put	data.h	/^      void put(const T &data, const size_t word, const size_t msb, const size_t size, const doub/;"	f	class:Data	typeref:typename:void
+set_data	data.h	/^    void set_data(word_t *data) $/;"	f	class:Data	typeref:typename:void
+swap_bytes	data.h	/^      void swap_bytes(T &data) const $/;"	f	class:Data	typeref:typename:void
+to_int	data.h	/^    int to_int(mil_t mil, const size_t size, const bool is_signed) const$/;"	f	class:Data	typeref:typename:int
+to_mil	data.h	/^    mil_t to_mil(int value, const size_t size, const bool is_signed) const$/;"	f	class:Data	typeref:typename:mil_t
+word_t	data.h	/^    typedef uint16_t word_t;$/;"	t	class:Data	typeref:typename:uint16_t

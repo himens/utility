@@ -1,0 +1,1 @@
+pragma Default_Scalar_Storage_Order (High_Order_First);
