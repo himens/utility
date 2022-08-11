@@ -14,7 +14,7 @@ void get_mil(Data::word_t *point)
 {
   Data data{point};
 
-  data_t my_data = {1, 18};
+  data_t my_data = {75, 18};
   data.put<int>(my_data.md_id, 0, 0, 7, 0);
   data.put<int>(my_data.msg_type, 0, 7, 9, 0);
 

@@ -51,8 +51,8 @@ class Data
         for (size_t i = 0; i < nb_of_words; i++) {
           mil |= static_cast<mil_t>(_data[word + i]) << WORD_SIZE * i;
         }
-        swap_bytes<mil_t>(mil); // to little-endian
-        mil = (mil & mask) >> shift; // move data to the right-most part of the MIL
+        swap_bytes(mil); // to little-endian
+        mil = (mil & mask) >> shift; // extract data and move it to the right-most part of the MIL
 
 	T data = to_int(mil, size, is_signed) * lsb_value;
 
@@ -74,7 +74,7 @@ class Data
 
 	auto mil = to_mil(data / lsb_value, size, is_signed);
         mil = (mil << shift) & mask; // move data to the correct position along the MIL
-        swap_bytes<mil_t>(mil); // to big-endian
+        swap_bytes(mil); // to big-endian
         for (size_t i = 0; i < nb_of_words; i++) {
           _data[word + i] |= mil >> WORD_SIZE * i;
         }
@@ -116,13 +116,14 @@ class Data
     // convert data from mil_t to int 
     int to_int(mil_t mil, const size_t size, const bool is_signed) const
     {
-      const mil_t positive_int_max = pow2(size - 1) - 1;
-      const bool is_negative = is_signed && (mil > positive_int_max);
-      const mil_t min = is_negative ? positive_int_max + 1 : 0; 
-      const mil_t max = (!is_signed || is_negative) ? pow2(size) - 1 : positive_int_max; 
+      const mil_t uint_max = pow2(size) - 1;
+      const mil_t int_max = pow2(size - 1) - 1; // all ones but last bit
+      const bool is_negative = is_signed && (mil > int_max);
+      const mil_t mil_min = is_negative ? int_max + 1 : 0; 
+      const mil_t mil_max = (!is_signed || is_negative) ? uint_max : int_max; 
 
-      if (mil < min) mil = min;
-      if (mil > max) mil = max;
+      if (mil < mil_min) mil = mil_min;
+      if (mil > mil_max) mil = mil_max;
 
       int value = is_negative ? mil - pow2(size) : mil;
 
