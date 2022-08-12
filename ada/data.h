@@ -93,13 +93,13 @@ class Data
     {
       const size_t lsb = msb + size - 1;
 
-      if (size <= 0 || size > MIL_SIZE) {
+      if (size == 0 || size > MIL_SIZE) {
         throw std::length_error("Data::check_range: invalid data size!");
       }
-      else if (msb < 0 || msb > WORD_SIZE - 1) {
+      else if (msb > WORD_SIZE - 1) {
         throw std::out_of_range("Data::check_range: msb out-of_range!");
       }
-      else if (lsb < 0 || lsb > MIL_SIZE - 1) {
+      else if (lsb > MIL_SIZE - 1) {
         throw std::out_of_range("Data::check_range: lsb out-of_range!");
       }
     }
@@ -168,7 +168,11 @@ class Data
     // get lsb value
     double get_lsb_value(const size_t size, const double msb_value) const
     {
-      double lsb_value = (msb_value != 0 && size > 1) ? std::abs(msb_value) / pow2(size - 1) : 1;
+      if (size == 0 || (msb_value != 0 && size == 1)) {
+        throw std::length_error("Data::get_lsb_value: invalid data size!");
+      }
+
+      double lsb_value = (msb_value != 0) ? std::abs(msb_value) / pow2(size - 1) : 1;
 
       return lsb_value;
     }
