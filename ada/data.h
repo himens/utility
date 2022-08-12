@@ -99,7 +99,7 @@ class Data
       else if (msb < 0 || msb > WORD_SIZE - 1) {
         throw std::out_of_range("Data::check_range: msb out-of_range!");
       }
-      else if (lsb > MIL_SIZE - 1) {
+      else if (lsb < 0 || lsb > MIL_SIZE - 1) {
         throw std::out_of_range("Data::check_range: lsb out-of_range!");
       }
     }
