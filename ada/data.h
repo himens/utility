@@ -93,14 +93,24 @@ class Data
     {
       const size_t lsb = msb + size - 1;
 
-      if (size <= 0 || size > MIL_SIZE) throw std::out_of_range("Data::check_range: size out-of range!");
-      else if (msb < 0 || msb > WORD_SIZE - 1) throw std::out_of_range("Data::check_range: msb out-of_range!");
-      else if (lsb > MIL_SIZE - 1) throw std::out_of_range("Data::check_range: lsb out-of_range!");
+      if (size <= 0 || size > MIL_SIZE) {
+        throw std::length_error("Data::check_range: invalid data size!");
+      }
+      else if (msb < 0 || msb > WORD_SIZE - 1) {
+        throw std::out_of_range("Data::check_range: msb out-of_range!");
+      }
+      else if (lsb > MIL_SIZE - 1) {
+        throw std::out_of_range("Data::check_range: lsb out-of_range!");
+      }
     }
 
     // convert data from int to mil_t 
     mil_t to_mil(int value, const size_t size, const double msb_value) const
     {
+      if (size > sizeof(int) * BYTE_SIZE) {
+        throw std::length_error("Data::to_mil: data size greater than int size!");
+      }
+
       const bool is_signed = msb_value < 0;
       const int min = is_signed ? -pow2(size - 1) : 0; 
       const int max = is_signed ? pow2(size - 1) - 1 : pow2(size) - 1; 
@@ -116,6 +126,10 @@ class Data
     // convert data from mil_t to int 
     int to_int(mil_t mil, const size_t size, const double msb_value) const
     {
+      if (size > sizeof(int) * BYTE_SIZE) {
+        throw std::length_error("Data::to_int: data size greater than int size!");
+      }
+
       const bool is_signed = msb_value < 0;
       const mil_t uint_max = pow2(size) - 1;
       const mil_t int_max = pow2(size - 1) - 1; // all ones but last bit
@@ -137,9 +151,15 @@ class Data
       { 
         check_type<T>();
 
-        if (sizeof(data) == 2) data = __builtin_bswap16(data);
-        else if (sizeof(data) == 4) data = __builtin_bswap32(data);
-        else if (sizeof(data) == 8) data = __builtin_bswap64(data);
+        if (sizeof(data) == 2) {
+          data = __builtin_bswap16(data);
+        }
+        else if (sizeof(data) == 4) {
+          data = __builtin_bswap32(data);
+        }
+        else if (sizeof(data) == 8) {
+          data = __builtin_bswap64(data);
+        }
         else {
           std::cout << "[WARNING] Data::swap_bytes: swap not supported for data size larger than 8 bytes! \n"; 
         }
