@@ -1,5 +1,6 @@
 #include <iostream>
-#include <math.h>
+#include <exception>
+#include <cmath>
 
 #ifndef _DATA_H_
 #define _DATA_H_
@@ -41,7 +42,6 @@ class Data
         check_type<T>();
 	check_range(msb, size);
 
-	const bool is_signed = msb_value < 0;
 	const auto lsb_value = get_lsb_value(size, msb_value);
         const auto nb_of_words = get_number_of_words(msb, size);
         const auto mask = get_mask(msb, size);
@@ -54,7 +54,7 @@ class Data
         swap_bytes(mil); // to little-endian
         mil = (mil & mask) >> shift; // extract data and move it to the right-most part of the MIL
 
-	T data = to_int(mil, size, is_signed) * lsb_value;
+	T data = to_int(mil, size, msb_value) * lsb_value;
 
 	return data;
       }
@@ -66,13 +66,12 @@ class Data
         check_type<T>();
 	check_range(msb, size);
 
-	const bool is_signed = msb_value < 0;
 	const auto lsb_value = get_lsb_value(size, msb_value);
         const auto nb_of_words = get_number_of_words(msb, size);
         const auto mask = get_mask(msb, size);
         const auto shift = get_shift(msb, size);
 
-	auto mil = to_mil(data / lsb_value, size, is_signed);
+	auto mil = to_mil(data / lsb_value, size, msb_value);
         mil = (mil << shift) & mask; // move data to the correct position along the MIL
         swap_bytes(mil); // to big-endian
         for (size_t i = 0; i < nb_of_words; i++) {
@@ -100,8 +99,9 @@ class Data
     }
 
     // convert data from int to mil_t 
-    mil_t to_mil(int value, const size_t size, const bool is_signed) const
+    mil_t to_mil(int value, const size_t size, const double msb_value) const
     {
+      const bool is_signed = msb_value < 0;
       const int min = is_signed ? -pow2(size - 1) : 0; 
       const int max = is_signed ? pow2(size - 1) - 1 : pow2(size) - 1; 
 
@@ -114,8 +114,9 @@ class Data
     }
 
     // convert data from mil_t to int 
-    int to_int(mil_t mil, const size_t size, const bool is_signed) const
+    int to_int(mil_t mil, const size_t size, const double msb_value) const
     {
+      const bool is_signed = msb_value < 0;
       const mil_t uint_max = pow2(size) - 1;
       const mil_t int_max = pow2(size - 1) - 1; // all ones but last bit
       const bool is_negative = is_signed && (mil > int_max);
