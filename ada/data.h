@@ -48,13 +48,13 @@ class Data
         const auto shift = get_shift(msb, size);
 
         mil_t mil = 0;
-        for (size_t i = 0; i < nb_of_words; i++) {
+        for (size_t i = 0; i < nb_of_words; i++) { // reconstruct MIL word by word
           mil |= static_cast<mil_t>(_data[word + i]) << WORD_SIZE * i;
         }
         swap_bytes(mil); // to little-endian
         mil = (mil & mask) >> shift; // extract data and move it to the right-most part of the MIL
 
-	T data = to_int(mil, size, msb_value) * lsb_value;
+	T data = to_int(mil, size, msb_value) * lsb_value; // convert MIL to its original data value
 
 	return data;
       }
@@ -71,10 +71,10 @@ class Data
         const auto mask = get_mask(msb, size);
         const auto shift = get_shift(msb, size);
 
-	auto mil = to_mil(data / lsb_value, size, msb_value);
+	auto mil = to_mil(data / lsb_value, size, msb_value); // convert scaled data to MIL format
         mil = (mil << shift) & mask; // move data to the correct position along the MIL
         swap_bytes(mil); // to big-endian
-        for (size_t i = 0; i < nb_of_words; i++) {
+        for (size_t i = 0; i < nb_of_words; i++) { // extract MIL words 
           _data[word + i] |= mil >> WORD_SIZE * i;
         }
       }
@@ -84,8 +84,8 @@ class Data
     template <class T>
       void check_type() const
       {
-        static_assert(std::is_arithmetic<T>::value, "Data::check_type: input data type not arithmetic!");
-        static_assert(sizeof(T) <= sizeof(mil_t), "Data::check_type: size of input data greater than mil_t!");
+        static_assert(std::is_arithmetic<T>::value, "Data::check_type: input data type is not arithmetic!");
+        static_assert(sizeof(T) <= sizeof(mil_t), "Data::check_type: size of input data greater than mil_t size!");
       }
 
     // check bit range 
@@ -93,7 +93,7 @@ class Data
     {
       const size_t lsb = msb + size - 1;
 
-      if (size == 0) throw std::invalid_argument("Data::check_range: size is zero!");
+      if (size <= 0 || size > MIL_SIZE) throw std::out_of_range("Data::check_range: size out-of range!");
       else if (msb < 0 || msb > WORD_SIZE - 1) throw std::out_of_range("Data::check_range: msb out-of_range!");
       else if (lsb > MIL_SIZE - 1) throw std::out_of_range("Data::check_range: lsb out-of_range!");
     }
