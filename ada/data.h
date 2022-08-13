@@ -107,7 +107,10 @@ class Data
     // convert data from int to mil_t 
     mil_t to_mil(int value, const size_t size, const double msb_value) const
     {
-      if (size > sizeof(int) * BYTE_SIZE) {
+      if (size == 0) {
+        throw std::length_error("Data::to_mil: invalid data size!");
+      }
+      else if (size > sizeof(int) * BYTE_SIZE) {
         throw std::length_error("Data::to_mil: data size greater than int size!");
       }
 
@@ -126,7 +129,10 @@ class Data
     // convert data from mil_t to int 
     int to_int(mil_t mil, const size_t size, const double msb_value) const
     {
-      if (size > sizeof(int) * BYTE_SIZE) {
+      if (size == 0) {
+        throw std::length_error("Data::to_int: invalid data size!");
+      }
+      else if (size > sizeof(int) * BYTE_SIZE) {
         throw std::length_error("Data::to_int: data size greater than int size!");
       }
 
