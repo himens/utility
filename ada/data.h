@@ -151,7 +151,10 @@ class Data
       { 
         check_type<T>();
 
-        if (sizeof(data) == 2) {
+        if (sizeof(data) < 2) {
+          return;
+        }
+        else if (sizeof(data) == 2) {
           data = __builtin_bswap16(data);
         }
         else if (sizeof(data) == 4) {
@@ -168,7 +171,7 @@ class Data
     // get lsb value
     double get_lsb_value(const size_t size, const double msb_value) const
     {
-      if (size == 0 || (msb_value != 0 && size == 1)) {
+      if (size == 0) {
         throw std::length_error("Data::get_lsb_value: invalid data size!");
       }
 
