@@ -170,7 +170,7 @@ class Data
           data = __builtin_bswap64(data);
         }
         else {
-          std::cout << "[WARNING] Data::swap_bytes: swap not supported for data size larger than 8 bytes! \n"; 
+          std::cout << "[WARNING] Data::swap_bytes: no built-in swap for " << sizeof(data) << "-bytes data! \n"; 
         }
       }
 
