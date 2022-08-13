@@ -8,17 +8,16 @@
 ////////////////
 // Data class //
 ////////////////
-class Data 
-{
+class Data {
   public:
     // typedefs
     typedef uint16_t word_t;
     typedef uint64_t mil_t;
 
     // constants
-    static const size_t BYTE_SIZE = 8;
-    static const size_t WORD_SIZE = sizeof(word_t) * BYTE_SIZE;
-    static const size_t MIL_SIZE = sizeof(mil_t) * BYTE_SIZE;
+    static const size_t byte_size = 8;
+    static const size_t word_size = sizeof(word_t) * byte_size;
+    static const size_t mil_size = sizeof(mil_t) * byte_size;
 
     // constructors
     Data() {}
@@ -27,7 +26,8 @@ class Data
     // get data 
     void set_data(word_t *data) 
     { 
-      if (data == nullptr) throw std::invalid_argument("Data::set_data: data is nullptr!");
+      if (data == nullptr)
+        throw std::invalid_argument("Data::set_data: data is nullptr!");
 
       _data = data; 
     }
@@ -37,7 +37,7 @@ class Data
 
     // get data to type T
     template <class T>
-      T get(const size_t word, const size_t msb, const size_t size, const double msb_value = 0) 
+      T get(const size_t word, const size_t msb, const size_t size, const double msb_value = 0) const
       {
         check_type<T>();
 	check_range(msb, size);
@@ -49,11 +49,10 @@ class Data
 
         mil_t mil = 0;
         for (size_t i = 0; i < nb_of_words; i++) { // reconstruct MIL word by word
-          mil |= static_cast<mil_t>(_data[word + i]) << WORD_SIZE * i;
+          mil |= static_cast<mil_t>(_data[word + i]) << word_size * i;
         }
         swap_bytes(mil); // to little-endian
         mil = (mil & mask) >> shift; // extract data and move it to the right-most part of the MIL
-
 	T data = to_int(mil, size, msb_value) * lsb_value; // convert MIL to its original data value
 
 	return data;
@@ -75,7 +74,7 @@ class Data
         mil = (mil << shift) & mask; // move data to the correct position along the MIL
         swap_bytes(mil); // to big-endian
         for (size_t i = 0; i < nb_of_words; i++) { // extract MIL words 
-          _data[word + i] |= mil >> WORD_SIZE * i;
+          _data[word + i] |= mil >> word_size * i;
         }
       }
 
@@ -93,26 +92,21 @@ class Data
     {
       const size_t lsb = msb + size - 1;
 
-      if (size == 0 || size > MIL_SIZE) {
+      if (size == 0 || size > mil_size)
         throw std::length_error("Data::check_range: invalid data size!");
-      }
-      else if (msb > WORD_SIZE - 1) {
+      else if (msb > word_size - 1)
         throw std::out_of_range("Data::check_range: msb out-of_range!");
-      }
-      else if (lsb > MIL_SIZE - 1) {
+      else if (lsb > mil_size - 1)
         throw std::out_of_range("Data::check_range: lsb out-of_range!");
-      }
     }
 
     // convert data from int to mil_t 
     mil_t to_mil(int value, const size_t size, const double msb_value) const
     {
-      if (size == 0) {
+      if (size == 0)
         throw std::length_error("Data::to_mil: invalid data size!");
-      }
-      else if (size > sizeof(int) * BYTE_SIZE) {
+      else if (size > sizeof(int) * byte_size)
         throw std::length_error("Data::to_mil: data size greater than int size!");
-      }
 
       const bool is_signed = msb_value < 0;
       const int min = is_signed ? -pow2(size - 1) : 0; 
@@ -129,12 +123,10 @@ class Data
     // convert data from mil_t to int 
     int to_int(mil_t mil, const size_t size, const double msb_value) const
     {
-      if (size == 0) {
+      if (size == 0)
         throw std::length_error("Data::to_int: invalid data size!");
-      }
-      else if (size > sizeof(int) * BYTE_SIZE) {
+      else if (size > sizeof(int) * byte_size)
         throw std::length_error("Data::to_int: data size greater than int size!");
-      }
 
       const bool is_signed = msb_value < 0;
       const mil_t uint_max = pow2(size) - 1;
@@ -157,29 +149,23 @@ class Data
       { 
         check_type<T>();
 
-        if (sizeof(data) < 2) {
+        if (sizeof(data) < 2)
           return;
-        }
-        else if (sizeof(data) == 2) {
+        else if (sizeof(data) == 2)
           data = __builtin_bswap16(data);
-        }
-        else if (sizeof(data) == 4) {
+        else if (sizeof(data) == 4)
           data = __builtin_bswap32(data);
-        }
-        else if (sizeof(data) == 8) {
+        else if (sizeof(data) == 8)
           data = __builtin_bswap64(data);
-        }
-        else {
+        else
           std::cout << "[WARNING] Data::swap_bytes: no built-in swap for " << sizeof(data) << "-bytes data! \n"; 
-        }
       }
 
     // get lsb value
     double get_lsb_value(const size_t size, const double msb_value) const
     {
-      if (size == 0) {
+      if (size == 0)
         throw std::length_error("Data::get_lsb_value: invalid data size!");
-      }
 
       double lsb_value = (msb_value != 0) ? std::abs(msb_value) / pow2(size - 1) : 1;
 
@@ -190,9 +176,8 @@ class Data
     mil_t get_mask(const size_t msb, const size_t size) const
     {
       check_range(msb, size);
-
       const auto shift = get_shift(msb, size);
-      mil_t mask = (~mil_t(0) >> (MIL_SIZE - size)) << shift; 
+      mil_t mask = (~mil_t(0) >> (mil_size - size)) << shift; 
 
       return mask; 
     }
@@ -201,8 +186,7 @@ class Data
     size_t get_number_of_words(const size_t msb, const size_t size) const 
     {
       check_range(msb, size);
-
-      size_t nb_of_words = std::ceil(static_cast<float>(msb + size) / WORD_SIZE);
+      size_t nb_of_words = std::ceil(static_cast<float>(msb + size) / word_size);
 
       return nb_of_words;
     }
@@ -211,8 +195,7 @@ class Data
     size_t get_shift(const size_t msb, const size_t size) const
     {
       check_range(msb, size);
-
-      size_t shift = MIL_SIZE - msb - size;
+      size_t shift = mil_size - msb - size;
 
       return shift;
     }
