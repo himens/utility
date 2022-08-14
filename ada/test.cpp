@@ -12,17 +12,23 @@ struct data_t {
 
 void get_mil(Data::word_t *point)
 {
-  Data data{point};
+  try {
+    Data data{nullptr};
 
-  data_t my_data = {75, 18};
-  data.put<int>(my_data.md_id, 0, 0, 7, 0);
-  data.put<int>(my_data.msg_type, 0, 7, 9, 0);
+    data_t my_data = {75, 18};
+    data.put<int>(my_data.md_id, 0, 0, 7, 0);
+    data.put<int>(my_data.msg_type, 0, 7, 9, 0);
 
-  std::cout << data.get<int>(0, 0, 7, 0) << "\n";
-  std::cout << data.get<int>(0, 7, 9, 0) << "\n";
+    std::cout << data.get<int>(0, 0, 7, 0) << "\n";
+    std::cout << data.get<int>(0, 7, 9, 0) << "\n";
 
-  char* c = (char*)point;
-  for (int i = 0; i < 2; i++) printf("%i: 0x%02x\n", i, c[i]);
+    char* c = (char*)point;
+    for (int i = 0; i < 2; i++) printf("%i: 0x%02x\n", i, c[i]);
+  }
+  catch (const std::exception &e) {
+    std::cerr << e.what() << "\n";
+    throw;
+  }
 }
 
 

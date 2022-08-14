@@ -1,5 +1,6 @@
 with System; 
 with System.Storage_Elements; use System.Storage_Elements;
+with Ada.Exceptions;  use Ada.Exceptions;
 with Ada.Text_IO; use Ada.Text_IO;
 
 with My_Data; use My_Data;
@@ -30,6 +31,11 @@ begin
   Ada.Text_IO.Put_Line(System.Default_Bit_Order'Img);
   Ada.Text_IO.Put_Line("MD_ID =" &data.MD_ID'Img);
   Ada.Text_IO.Put_Line("MESS_TYPE =" &data.MESS_TYPE'Img);
-  --Show(data'Address);
+  Show(data'Address);
+
+exception 
+  when Others => 
+    Ada.Text_IO.Put_Line(Standard_Error, "Error has occurred!");
+    raise;
 
 end My_Main;
