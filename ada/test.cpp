@@ -13,7 +13,7 @@ struct data_t {
 void get_mil(Data::word_t *point)
 {
   try {
-    Data data{nullptr};
+    Data data{point};
 
     data_t my_data = {75, 18};
     data.put<int>(my_data.md_id, 0, 0, 7, 0);

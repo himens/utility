@@ -31,7 +31,8 @@ begin
   Ada.Text_IO.Put_Line(System.Default_Bit_Order'Img);
   Ada.Text_IO.Put_Line("MD_ID =" &data.MD_ID'Img);
   Ada.Text_IO.Put_Line("MESS_TYPE =" &data.MESS_TYPE'Img);
-  Show(data'Address);
+
+  --Show(data'Address);
 
 exception 
   when Others => 
