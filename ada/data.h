@@ -1,6 +1,7 @@
 #include <iostream>
 #include <exception>
 #include <cmath>
+#include <cassert>
 
 #ifndef _DATA_H_
 #define _DATA_H_
@@ -103,10 +104,7 @@ class Data {
     // convert data from int to mil_t 
     mil_t to_mil(int value, const size_t size, const double msb_value) const
     {
-      if (size == 0)
-        throw std::length_error("Data::to_mil: invalid data size!");
-      else if (size > sizeof(int) * byte_size)
-        throw std::length_error("Data::to_mil: data size greater than int size!");
+      assert(size > 0 && size <= sizeof(int) * byte_size);
 
       const bool is_signed = msb_value < 0;
       const int min = is_signed ? -pow2(size - 1) : 0; 
@@ -123,10 +121,7 @@ class Data {
     // convert data from mil_t to int 
     int to_int(mil_t mil, const size_t size, const double msb_value) const
     {
-      if (size == 0)
-        throw std::length_error("Data::to_int: invalid data size!");
-      else if (size > sizeof(int) * byte_size)
-        throw std::length_error("Data::to_int: data size greater than int size!");
+      assert(size > 0 && size <= sizeof(int) * byte_size);
 
       const bool is_signed = msb_value < 0;
       const mil_t uint_max = pow2(size) - 1;
@@ -164,40 +159,33 @@ class Data {
     // get lsb value
     double get_lsb_value(const size_t size, const double msb_value) const
     {
-      if (size == 0)
-        throw std::length_error("Data::get_lsb_value: invalid data size!");
+      assert(size > 0);
 
-      double lsb_value = (msb_value != 0) ? std::abs(msb_value) / pow2(size - 1) : 1;
-
-      return lsb_value;
+      return (msb_value != 0) ? std::abs(msb_value) / pow2(size - 1) : 1;
     }
 
     // get mask in range
     mil_t get_mask(const size_t msb, const size_t size) const
     {
-      check_range(msb, size);
       const auto shift = get_shift(msb, size);
-      mil_t mask = (~mil_t(0) >> (mil_size - size)) << shift; 
 
-      return mask; 
+      return (~mil_t(0) >> (mil_size - size)) << shift; 
     }
 
     // get number of words spanned by data
     size_t get_number_of_words(const size_t msb, const size_t size) const 
-    {
-      check_range(msb, size);
-      size_t nb_of_words = std::ceil(static_cast<float>(msb + size) / word_size);
+    { 
+      assert(word_size > 0);
 
-      return nb_of_words;
+      return std::ceil(static_cast<float>(msb + size) / word_size); 
     }
 
     // get offset by which data has to be moved along MIL in order to be placed/extracted
-    size_t get_shift(const size_t msb, const size_t size) const
-    {
-      check_range(msb, size);
-      size_t shift = mil_size - msb - size;
+    size_t get_shift(const size_t msb, const size_t size) const 
+    { 
+      assert(mil_size - msb - size >= 0);
 
-      return shift;
+      return (mil_size - msb - size); 
     }
 
     // fast power of 2 
