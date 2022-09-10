@@ -2,6 +2,7 @@ with System;
 with System.Storage_Elements; use System.Storage_Elements;
 with Ada.Exceptions;  use Ada.Exceptions;
 with Ada.Text_IO; use Ada.Text_IO;
+with Ada.Real_Time;
 
 with My_Data; use My_Data;
 
@@ -21,7 +22,10 @@ procedure My_Main is
   pragma Import(CPP, Get_Mil, "get_mil");
 
   data : Block1;
+  T : Ada.Real_Time.Time;
 begin
+
+  T := Ada.Real_Time.Clock;
 
   --data.MD_ID := 1;
   --data.MESS_TYPE := 18;

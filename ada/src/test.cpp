@@ -3,6 +3,7 @@
 extern "C" 
 {
   void get_mil(Data::word_t *point);
+  long int my_clock();
 }
 
 struct data_t {
@@ -31,4 +32,8 @@ void get_mil(Data::word_t *point)
   }
 }
 
-
+long int my_clock() 
+{ 
+  std::cout << "Uff \n"; 
+  return 1; 
+}
