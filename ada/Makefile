@@ -8,4 +8,4 @@ clean:
 	rm *.o
 	rm *.so
 	rm *.ali
-	rm ada_test.exe
+	rm *..exe
