@@ -27,4 +27,5 @@ package My_Data is
     MESS_TYPE at 0 range 7  ..  15;
   end record;
 
+  procedure Print_Data (data : Block1);
 end My_Data;
