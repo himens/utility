@@ -5,7 +5,7 @@ lib:
 	gnatmake src/my_lib.adb -a -c -fPIC -gnat95 -largs test.o --LINK=c++
 	gcc --shared -fPIC -o libtest.so *.o
 clean:
-	rm *.o
-	rm *.so
-	rm *.ali
-	rm *..exe
+	rm -f *.o
+	rm -f *.so
+	rm -f *.ali
+	rm -f *.exe
