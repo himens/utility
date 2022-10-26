@@ -2,14 +2,15 @@
 #include <stdexcept>
 #include <cmath>
 #include <cassert>
+#include <bitset>
 
-#ifndef _DATA_H_
-#define _DATA_H_
+#ifndef _BUS_INTERFACE_H_
+#define _BUS_INTERFACE_H_
 
-////////////////
-// Data class //
-////////////////
-class Data {
+////////////////////////
+// BusInterface class //
+////////////////////////
+class BusInterface {
   public:
     // typedefs
     typedef uint16_t word_t;
@@ -21,8 +22,8 @@ class Data {
     static const size_t mil_size = sizeof(mil_t) * byte_size;
 
     // constructors
-    Data() {}
-    Data(word_t *data) { set_data(data); }
+    BusInterface() {}
+    BusInterface(word_t *data) { set_data(data); }
 
     // get data 
     void set_data(word_t *data) 
@@ -68,14 +69,29 @@ class Data {
 
 	const auto lsb_value = get_lsb_value(size, msb_value);
         const auto nb_of_words = get_number_of_words(msb, size);
-        const auto mask = get_mask(msb, size);
+        auto mask = get_mask(msb, size);
         const auto shift = get_shift(msb, size);
+
+        std::cout << data << " " << msb << " " << size << " " << shift << "\n";
 
 	auto mil = to_mil(data / lsb_value, size, msb_value); // convert scaled data to MIL format
         mil = (mil << shift) & mask; // move data to the correct position along the MIL
+
+        std::bitset<mil_size> b(mil);
+        std::cout << "before swap: " << b << "\n";
+
         swap_bytes(mil); // to big-endian
+        swap_bytes(mask); // to big-endian
+
+        std::bitset<mil_size> b_s(mil);
+        std::cout << "after swap: " << b_s << "\n";
+
         for (size_t i = 0; i < nb_of_words; i++) { // extract MIL words 
+          _data[word + i] &= ~(mask >> word_size * i); // delete old data in range, keep the rest
           _data[word + i] |= mil >> word_size * i;
+
+          std::bitset<mil_size> b_w(_data[word + i]);
+          std::cout << "word " << i << ": " << b_w << "\n";
         }
       }
 

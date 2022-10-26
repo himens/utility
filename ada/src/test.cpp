@@ -1,8 +1,8 @@
-#include "data.h"
+#include "bus_interface.h"
 
 extern "C" 
 {
-  void get_mil(Data::word_t *point);
+  void get_mil(BusInterface::word_t *point);
   long int my_clock();
   int my_clock_gettime (clockid_t __clock_id, struct timespec *__tp) __THROW;
 }
@@ -10,22 +10,24 @@ extern "C"
 struct data_t {
     uint16_t md_id;
     uint16_t msg_type;
-};
+    uint16_t msg_no;
+} __attribute__((packed));
 
-void get_mil(Data::word_t *point)
+void get_mil(BusInterface::word_t *point)
 {
   try {
-    Data data{point};
+    BusInterface bus{point};
 
-    data_t my_data = {1, 18};
-    data.put<int>(my_data.md_id, 0, 0, 6, 0);
-    data.put<int>(my_data.msg_type, 0, 7, 9, 0);
+    data_t my_data = {44, 1, 3};
+    bus.put<int>(my_data.md_id, 0, 0, 7, 0);
+    bus.put<int>(my_data.msg_type, 0, 7, 9, 0);
+    bus.put<int>(my_data.msg_no, 1, 0, 8, 0);
 
-    std::cout << data.get<int>(0, 0, 6, 0) << "\n";
-    std::cout << data.get<int>(0, 7, 9, 0) << "\n";
+    //std::cout << bus.get<int>(0, 0, 7, 0) << "\n";
+    //std::cout << bus.get<int>(0, 7, 9, 0) << "\n";
 
-    char* c = (char*)point;
-    for (int i = 0; i < 2; i++) printf("%i: 0x%02x\n", i, c[i]);
+    //char* c = (char*)point;
+    //for (int i = 0; i < 2; i++) printf("%i: 0x%02x\n", i, c[i]);
   }
   catch (const std::exception &e) {
     std::cerr << e.what() << "\n";

@@ -1,4 +1,8 @@
 with System;
+with Ada.Text_IO;
+with Ada.Real_Time;
+with System.OS_Interface;
+with Ada.Execution_Time;
 
 package My_Data is
   subtype RNG1_TYPE is Natural range 0 .. 2**1 - 1;
@@ -14,18 +18,21 @@ package My_Data is
   subtype RNG16_TYPE is Natural range 0 .. 2**16 - 1;
 
   type Block1 is record 
-    MD_ID     : RNG6_TYPE := 0;
-    DUMMY1    : RNG1_TYPE := 0;
-    MESS_TYPE : RNG9_TYPE := 0;
+    MD_ID     : RNG7_TYPE := 0;
+    MSG_TYPE  : RNG9_TYPE := 0;
+    MSG_NO    : RNG8_TYPE := 0;
   end record;
 
-  --for Block1'Scalar_Storage_Order use System.High_Order_First;
-  --for Block1'Bit_Order use System.High_Order_First;
+  --for Block1'Scalar_Storage_Order use System.Low_Order_First;
+  --for Block1'Bit_Order use System.Low_Order_First;
   for Block1 use record
-    MD_ID     at 0 range 0  ..  5;
-    DUMMY1    at 0 range 6  ..  6;
-    MESS_TYPE at 0 range 7  ..  15;
+    MD_ID     at 0 range 0  ..  6;
+    MSG_TYPE  at 0 range 7  ..  15;
+    MSG_NO    at 2 range 0  ..  7;
   end record;
 
   procedure Print_Data (data : Block1);
+  pragma Export(C, Print_Data, "print_data");
+  --
+  procedure Show_Bytes (A : System.Address);
 end My_Data;
