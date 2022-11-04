@@ -1,4 +1,3 @@
-with System.OS_Interface;
 with Ada.Execution_Time;
 
 procedure My_Lib is

@@ -25,7 +25,7 @@ class BusInterface {
     BusInterface() {}
     BusInterface(word_t *data) { set_data(data); }
 
-    // get data 
+    // set data 
     void set_data(word_t *data) 
     { 
       if (data == nullptr)
@@ -72,26 +72,15 @@ class BusInterface {
         auto mask = get_mask(msb, size);
         const auto shift = get_shift(msb, size);
 
-        std::cout << data << " " << msb << " " << size << " " << shift << "\n";
-
 	auto mil = to_mil(data / lsb_value, size, msb_value); // convert scaled data to MIL format
         mil = (mil << shift) & mask; // move data to the correct position along the MIL
-
-        std::bitset<mil_size> b(mil);
-        std::cout << "before swap: " << b << "\n";
 
         swap_bytes(mil); // to big-endian
         swap_bytes(mask); // to big-endian
 
-        std::bitset<mil_size> b_s(mil);
-        std::cout << "after swap: " << b_s << "\n";
-
         for (size_t i = 0; i < nb_of_words; i++) { // extract MIL words 
           _data[word + i] &= ~(mask >> word_size * i); // delete old data in range, keep the rest
           _data[word + i] |= mil >> word_size * i;
-
-          std::bitset<mil_size> b_w(_data[word + i]);
-          std::cout << "word " << i << ": " << b_w << "\n";
         }
       }
 

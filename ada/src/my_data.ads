@@ -1,7 +1,6 @@
 with System;
 with Ada.Text_IO;
 with Ada.Real_Time;
-with System.OS_Interface;
 with Ada.Execution_Time;
 
 package My_Data is
@@ -16,6 +15,14 @@ package My_Data is
   subtype RNG9_TYPE is Natural range 0 .. 2**9 - 1;
   subtype RNG10_TYPE is Natural range 0 .. 2**10 - 1;
   subtype RNG16_TYPE is Natural range 0 .. 2**16 - 1;
+  type INT16_TYPE is range -2**15 .. 2**15 - 1;
+
+  type Index is range 1 .. 5;
+
+  type Little_Array is array (Index) of INT16_TYPE;
+  for Little_Array'Scalar_Storage_Order use System.Low_Order_First;
+
+  type Big_Array is array (Index) of INT16_TYPE;
 
   type Block1 is record 
     MD_ID     : RNG7_TYPE := 0;
@@ -34,5 +41,5 @@ package My_Data is
   procedure Print_Data (data : Block1);
   pragma Export(C, Print_Data, "print_data");
   --
-  procedure Show_Bytes (A : System.Address);
+  --procedure Print_Bytes (A : System.Address);
 end My_Data;

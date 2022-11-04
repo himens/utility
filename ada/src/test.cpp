@@ -5,6 +5,7 @@ extern "C"
   void get_mil(BusInterface::word_t *point);
   long int my_clock();
   int my_clock_gettime (clockid_t __clock_id, struct timespec *__tp) __THROW;
+  void print_bytes(BusInterface::word_t *point, size_t n_bytes);
 }
 
 struct data_t {
@@ -25,14 +26,19 @@ void get_mil(BusInterface::word_t *point)
 
     //std::cout << bus.get<int>(0, 0, 7, 0) << "\n";
     //std::cout << bus.get<int>(0, 7, 9, 0) << "\n";
-
-    //char* c = (char*)point;
-    //for (int i = 0; i < 2; i++) printf("%i: 0x%02x\n", i, c[i]);
   }
   catch (const std::exception &e) {
     std::cerr << e.what() << "\n";
     throw;
   }
+}
+
+void print_bytes(BusInterface::word_t *point, size_t n_bytes)
+{
+  char* c = (char*)point;
+  for (size_t i = 0; i < n_bytes; i++) 
+    //printf("%i: 0x%02x\n", i, c[i]);
+    std::cout << "Byte " << i << ": " << std::hex << c[i] << "\n";;
 }
 
 long int my_clock() 
